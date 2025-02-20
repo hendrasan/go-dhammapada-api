@@ -13,6 +13,7 @@ type Config struct {
 	DBUser     string
 	DBPassword string
 	DBName     string
+	Port       string
 }
 
 func LoadConfig() (*Config, error) {
@@ -27,14 +28,20 @@ func LoadConfig() (*Config, error) {
 		DBUser:     os.Getenv("DB_USER"),
 		DBPassword: os.Getenv("DB_PASSWORD"),
 		DBName:     os.Getenv("DB_NAME"),
+		Port:       os.Getenv("APP_PORT"),
+	}
+
+	if config.Port == "" {
+		config.Port = "8080" // Default port if not specified
 	}
 
 	// Debug config values
-	log.Printf("Loaded database config - Host: %s, Port: %s, User: %s, DBName: %s",
+	log.Printf("Loaded config - Host: %s, Port: %s, User: %s, DBName: %s, Server Port: %s",
 		config.DBHost,
 		config.DBPort,
 		config.DBUser,
 		config.DBName,
+		config.Port,
 	)
 
 	return config, nil

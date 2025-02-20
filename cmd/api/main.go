@@ -29,7 +29,7 @@ func main() {
 
 	handlers.RegisterRoutes(r, db)
 
-	if err := r.Run(":8080"); err != nil {
+	if err := r.Run(":" + cfg.Port); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
