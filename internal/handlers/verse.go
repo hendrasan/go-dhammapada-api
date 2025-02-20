@@ -43,7 +43,7 @@ func (h *VerseHandler) GetVerses(c *gin.Context) {
 	h.DB.Model(&models.Verse{}).Count(&total)
 
 	// fetch paginated results
-	result := h.DB.Order("verse_number asc").Offset(offset).Limit(pageSizeInt).Find(&verses)
+	result := h.DB.Preload("Chapter").Order("verse_number asc").Offset(offset).Limit(pageSizeInt).Find(&verses)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching verses"})
 		return
@@ -72,7 +72,7 @@ func (h *VerseHandler) GetVerseByID(c *gin.Context) {
 	var verse models.Verse
 
 	id := c.Param("id")
-	result := h.DB.First(&verse, id)
+	result := h.DB.Preload("Chapter").First(&verse, id)
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Verse not found"})
