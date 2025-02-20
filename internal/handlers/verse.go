@@ -21,6 +21,7 @@ func NewVerseHandler(db *gorm.DB) *VerseHandler {
 
 func (h *VerseHandler) GetVerses(c *gin.Context) {
 	var verses []models.Verse
+	var total int64
 
 	// get pagination query parameters
 	page := c.DefaultQuery("page", "1")
@@ -38,6 +39,9 @@ func (h *VerseHandler) GetVerses(c *gin.Context) {
 
 	offset := (pageInt - 1) * pageSizeInt
 
+	// get total count of verses
+	h.DB.Model(&models.Verse{}).Count(&total)
+
 	// fetch paginated results
 	result := h.DB.Order("verse_number asc").Offset(offset).Limit(pageSizeInt).Find(&verses)
 	if result.Error != nil {
@@ -45,8 +49,22 @@ func (h *VerseHandler) GetVerses(c *gin.Context) {
 		return
 	}
 
+	// calculate total pages
+	totalPages := total / int64(pageSizeInt)
+	if int(total)%pageSizeInt != 0 {
+		totalPages++
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"data": verses,
+		"meta": gin.H{
+			"current_page":  pageInt,
+			"per_page":      pageSizeInt,
+			"total_records": total,
+			"total_pages":   totalPages,
+			"has_next":      pageInt < int(totalPages),
+			"has_prev":      pageInt > 1,
+		},
 	})
 }
 
