@@ -23,10 +23,13 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates tzdata
 
 # Set the Current Working Directory inside the container
-WORKDIR /app
+WORKDIR /root/
 
 # Copy the pre-built binary file from the previous stage
 COPY --from=builder /app/main .
+
+# Ensure the binary is executable
+RUN chmod +x main
 
 # Expose port 8080 to the outside world
 EXPOSE 8080
