@@ -9,6 +9,12 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 	ch := NewChapterHandler(db)
 	vh := NewVerseHandler(db)
 
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status": "ok",
+		})
+	})
+
 	v1 := r.Group("/api/v1")
 	{
 		v1.GET("/chapters", ch.GetChapters)
