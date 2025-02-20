@@ -13,11 +13,14 @@ RUN go mod download
 # Copy the source from the current directory to the Working Directory inside the container
 COPY . .
 
-# Build the Go app
-RUN go build -o main ./cmd/api
+# Build the Go app with CGO disabled
+RUN CGO_ENABLED=0 GOOS=linux go build -o main ./cmd/api
 
 # Stage 2: Run the Go app
 FROM alpine:latest
+
+# Install CA certificates and tzdata
+RUN apk --no-cache add ca-certificates tzdata
 
 # Set the Current Working Directory inside the container
 WORKDIR /app
