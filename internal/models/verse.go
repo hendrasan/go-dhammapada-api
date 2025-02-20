@@ -8,7 +8,6 @@ type Verse struct {
 	VerseNumber       int       `gorm:"column:verse_number" json:"verse_number"`
 	Text              string    `json:"text"`
 	EnglishText       string    `json:"english_text"`
-	PaliText          string    `json:"pali_text"`
 	StoryTitle        string    `gorm:"column:story_title" json:"story_title"`
 	EnglishStoryTitle string    `gorm:"column:english_story_title" json:"english_story_title"`
 	Story             string    `json:"story"`
