@@ -8,6 +8,7 @@ import (
 func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 	ch := NewChapterHandler(db)
 	vh := NewVerseHandler(db)
+	sh := NewSearchHandler(db)
 
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -22,5 +23,7 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 
 		v1.GET("/verses", vh.GetVerses)
 		v1.GET("/verses/:id", vh.GetVerseByID)
+
+		v1.GET("/search", sh.Search)
 	}
 }
