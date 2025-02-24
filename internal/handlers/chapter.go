@@ -47,7 +47,7 @@ func (h *ChapterHandler) GetChapterByID(c *gin.Context) {
 	id := c.Param("id")
 
 	// Eager load verses using Preload
-	result := h.DB.Preload("Verses").First(&chapter, id)
+	result := h.DB.Preload("Verses.Chapter").First(&chapter, id)
 
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
