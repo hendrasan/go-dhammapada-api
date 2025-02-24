@@ -22,6 +22,7 @@ func RegisterRoutes(r *gin.Engine, db *gorm.DB) {
 		v1.GET("/chapters/:id", ch.GetChapterByID)
 
 		v1.GET("/verses", vh.GetVerses)
+		v1.GET("/verses/random", vh.GetRandomVerse)
 		v1.GET("/verses/:id", vh.GetVerseByID)
 
 		v1.GET("/search", sh.Search)

@@ -87,3 +87,17 @@ func (h *VerseHandler) GetVerseByID(c *gin.Context) {
 		"data": verse,
 	})
 }
+
+func (h *VerseHandler) GetRandomVerse(c *gin.Context) {
+	var verse models.Verse
+
+	result := h.DB.Preload("Chapter").Order("RANDOM()").First(&verse)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching random verse"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"data": verse,
+	})
+}
