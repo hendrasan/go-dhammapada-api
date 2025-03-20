@@ -21,7 +21,18 @@ func NewChapterHandler(db *gorm.DB) *ChapterHandler {
 func (h *ChapterHandler) GetChapters(c *gin.Context) {
 	var chapters []models.Chapter
 
-	result := h.DB.Order("number asc").Find(&chapters)
+	query := h.DB.Order("number asc")
+
+	// Check if search query exists
+	if searchQuery := c.Query("q"); searchQuery != "" {
+		query = query.Where(
+			"title ILIKE ? OR english_title ILIKE ?",
+			"%"+searchQuery+"%",
+			"%"+searchQuery+"%",
+		)
+	}
+
+	result := query.Find(&chapters)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching chapters"})
 		return

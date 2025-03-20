@@ -42,8 +42,22 @@ func (h *VerseHandler) GetVerses(c *gin.Context) {
 	// get total count of verses
 	h.DB.Model(&models.Verse{}).Count(&total)
 
+	query := h.DB.Preload("Chapter").Order("verse_number asc").Offset(offset).Limit(pageSizeInt)
+
+	if searchQuery := c.Query("q"); searchQuery != "" {
+		query = query.Where(
+			"text ILIKE ? OR english_text ILIKE ? OR story_title ILIKE ? OR english_story_title ILIKE ? OR story ILIKE ? OR english_story ILIKE ?",
+			"%"+searchQuery+"%",
+			"%"+searchQuery+"%",
+			"%"+searchQuery+"%",
+			"%"+searchQuery+"%",
+			"%"+searchQuery+"%",
+			"%"+searchQuery+"%",
+		)
+	}
+
 	// fetch paginated results
-	result := h.DB.Preload("Chapter").Order("verse_number asc").Offset(offset).Limit(pageSizeInt).Find(&verses)
+	result := query.Find(&verses)
 	if result.Error != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching verses"})
 		return
