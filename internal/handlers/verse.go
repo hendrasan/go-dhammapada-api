@@ -39,22 +39,21 @@ func (h *VerseHandler) GetVerses(c *gin.Context) {
 
 	offset := (pageInt - 1) * pageSizeInt
 
-	// get total count of verses
-	h.DB.Model(&models.Verse{}).Count(&total)
+	// create base query
+	baseQuery := h.DB.Model(&models.Verse{})
 
-	query := h.DB.Preload("Chapter").Order("verse_number asc").Offset(offset).Limit(pageSizeInt)
-
+	// apply search filter to base query if search parameter exists
 	if searchQuery := c.Query("q"); searchQuery != "" {
-		query = query.Where(
+		searchPattern := "%" + searchQuery + "%"
+
+		baseQuery = baseQuery.Where(
 			"text ILIKE ? OR english_text ILIKE ? OR story_title ILIKE ? OR english_story_title ILIKE ? OR story ILIKE ? OR english_story ILIKE ?",
-			"%"+searchQuery+"%",
-			"%"+searchQuery+"%",
-			"%"+searchQuery+"%",
-			"%"+searchQuery+"%",
-			"%"+searchQuery+"%",
-			"%"+searchQuery+"%",
+			searchPattern, searchPattern, searchPattern, searchPattern, searchPattern, searchPattern,
 		)
 	}
+
+	// clone base query for pagination and add pagination-specific operations
+	query := baseQuery.Session(&gorm.Session{}).Preload("Chapter").Order("verse_number asc").Offset(offset).Limit(pageSizeInt)
 
 	// fetch paginated results
 	result := query.Find(&verses)
@@ -62,6 +61,12 @@ func (h *VerseHandler) GetVerses(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error fetching verses"})
 		return
 	}
+
+	// clone base query for count
+	countQuery := baseQuery.Session(&gorm.Session{})
+
+	// get total count of verses
+	countQuery.Count(&total)
 
 	// calculate total pages
 	totalPages := total / int64(pageSizeInt)
